@@ -311,9 +311,9 @@
     <section aria-labelledby="architecture">
       <h2 id="architecture">Architecture</h2>
       <div class="diagram-wrap">
-        <svg viewBox="0 0 1120 520" role="img" aria-labelledby="diagram-title diagram-desc">
+        <svg viewBox="0 0 1280 720" role="img" aria-labelledby="diagram-title diagram-desc">
           <title id="diagram-title">Policy deployment architecture</title>
-          <desc id="diagram-desc">Organizers connect to a public proxy layer, which forwards traffic through a reverse SSH tunnel or managed tunnel to the policy server running in a Yonsei SLURM GPU job.</desc>
+          <desc id="diagram-desc">A numbered sequence showing organizer observations entering a public HTTPS WebSocket endpoint, passing through a proxy host and reverse tunnel, reaching the policy server in a Yonsei SLURM GPU job, and returning action chunks through the same path.</desc>
 
           <defs>
             <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
@@ -321,43 +321,80 @@
             </marker>
           </defs>
 
-          <rect x="32" y="76" width="252" height="142" rx="8" fill="var(--public)" stroke="var(--public-line)" stroke-width="2"></rect>
-          <text x="158" y="116" text-anchor="middle" class="node-title">Competition organizers</text>
-          <text x="158" y="148" text-anchor="middle" class="node-text">send observations</text>
-          <text x="158" y="172" text-anchor="middle" class="node-text">receive action chunks</text>
+          <rect x="28" y="66" width="216" height="150" rx="8" fill="var(--public)" stroke="var(--public-line)" stroke-width="2"></rect>
+          <text x="136" y="104" text-anchor="middle" class="node-title">1. Organizer evaluator</text>
+          <text x="136" y="136" text-anchor="middle" class="node-text">OpenPI-style client</text>
+          <text x="136" y="160" text-anchor="middle" class="node-text">sends observation:</text>
+          <text x="136" y="184" text-anchor="middle" class="node-text">images + state + prompt</text>
 
-          <rect x="434" y="52" width="280" height="190" rx="8" fill="var(--proxy)" stroke="var(--proxy-line)" stroke-width="2"></rect>
-          <text x="574" y="94" text-anchor="middle" class="node-title">Public proxy layer</text>
-          <text x="574" y="124" text-anchor="middle" class="node-text">VM, computer, or tunnel service</text>
-          <text x="574" y="156" text-anchor="middle" class="node-text">Caddy/nginx terminates TLS</text>
-          <text x="574" y="180" text-anchor="middle" class="node-text">public: wss://policy.yourdomain.com</text>
-          <text x="574" y="204" text-anchor="middle" class="node-text">private: 127.0.0.1:18000</text>
+          <rect x="320" y="54" width="252" height="174" rx="8" fill="var(--proxy)" stroke="var(--proxy-line)" stroke-width="2"></rect>
+          <text x="446" y="92" text-anchor="middle" class="node-title">2. Public endpoint</text>
+          <text x="446" y="124" text-anchor="middle" class="node-text">wss://policy.yourdomain.com</text>
+          <text x="446" y="150" text-anchor="middle" class="node-text">WSS means encrypted WebSocket</text>
+          <text x="446" y="174" text-anchor="middle" class="node-text">like HTTPS, but streaming</text>
+          <text x="446" y="198" text-anchor="middle" class="node-text">uses Api-Key header</text>
 
-          <rect x="842" y="76" width="246" height="142" rx="8" fill="var(--yonsei)" stroke="var(--yonsei-line)" stroke-width="2"></rect>
-          <text x="965" y="116" text-anchor="middle" class="node-title">Yonsei login node</text>
-          <text x="965" y="148" text-anchor="middle" class="node-text">submit job with sbatch</text>
-          <text x="965" y="172" text-anchor="middle" class="node-text">watch logs and queue</text>
+          <rect x="648" y="54" width="252" height="174" rx="8" fill="var(--proxy)" stroke="var(--proxy-line)" stroke-width="2"></rect>
+          <text x="774" y="92" text-anchor="middle" class="node-title">3. Proxy program</text>
+          <text x="774" y="124" text-anchor="middle" class="node-text">Caddy or nginx</text>
+          <text x="774" y="150" text-anchor="middle" class="node-text">accepts public traffic</text>
+          <text x="774" y="174" text-anchor="middle" class="node-text">handles TLS certificate</text>
+          <text x="774" y="198" text-anchor="middle" class="node-text">forwards to localhost:18000</text>
 
-          <rect x="824" y="318" width="282" height="152" rx="8" fill="#f0f3ff" stroke="var(--yonsei-line)" stroke-width="2"></rect>
-          <text x="965" y="358" text-anchor="middle" class="node-title">Yonsei GPU compute node</text>
-          <text x="965" y="390" text-anchor="middle" class="node-text">SLURM job owns one GPU</text>
-          <text x="965" y="414" text-anchor="middle" class="node-text">policy server: 127.0.0.1:8000</text>
-          <text x="965" y="438" text-anchor="middle" class="node-text">ssh -R :18000 -> :8000</text>
+          <rect x="980" y="54" width="252" height="174" rx="8" fill="var(--proxy)" stroke="var(--proxy-line)" stroke-width="2"></rect>
+          <text x="1106" y="92" text-anchor="middle" class="node-title">4. Reverse tunnel</text>
+          <text x="1106" y="124" text-anchor="middle" class="node-text">created by Yonsei job</text>
+          <text x="1106" y="150" text-anchor="middle" class="node-text">proxy localhost:18000</text>
+          <text x="1106" y="174" text-anchor="middle" class="node-text">points backward to</text>
+          <text x="1106" y="198" text-anchor="middle" class="node-text">Yonsei localhost:8000</text>
 
-          <line x1="284" y1="147" x2="424" y2="147" stroke="#4f5b54" stroke-width="2.5" marker-end="url(#arrow)"></line>
-          <text x="354" y="130" text-anchor="middle" class="edge-label">WSS + API key</text>
+          <rect x="812" y="318" width="252" height="172" rx="8" fill="var(--panel)" stroke="var(--line)" stroke-width="2"></rect>
+          <text x="938" y="356" text-anchor="middle" class="node-title">5. Policy server</text>
+          <text x="938" y="388" text-anchor="middle" class="node-text">runs inside SLURM job</text>
+          <text x="938" y="412" text-anchor="middle" class="node-text">bound to 127.0.0.1:8000</text>
+          <text x="938" y="436" text-anchor="middle" class="node-text">receives msgpack observation</text>
+          <text x="938" y="460" text-anchor="middle" class="node-text">calls policy.infer(...)</text>
 
-          <line x1="842" y1="147" x2="724" y2="147" stroke="#4f5b54" stroke-width="2.5" marker-end="url(#arrow)"></line>
-          <text x="783" y="130" text-anchor="middle" class="edge-label">job submission</text>
+          <rect x="480" y="318" width="252" height="172" rx="8" fill="var(--panel)" stroke="var(--line)" stroke-width="2"></rect>
+          <text x="606" y="356" text-anchor="middle" class="node-title">6. GPU inference</text>
+          <text x="606" y="388" text-anchor="middle" class="node-text">SLURM assigned GPU</text>
+          <text x="606" y="412" text-anchor="middle" class="node-text">CUDA_VISIBLE_DEVICES set</text>
+          <text x="606" y="436" text-anchor="middle" class="node-text">model produces action chunk</text>
+          <text x="606" y="460" text-anchor="middle" class="node-text">shape: horizon x action_dim</text>
 
-          <path d="M965 218 C965 258,965 276,965 308" fill="none" stroke="#4f5b54" stroke-width="2.5" marker-end="url(#arrow)"></path>
-          <text x="1010" y="268" text-anchor="middle" class="edge-label">allocated GPU</text>
+          <rect x="148" y="318" width="252" height="172" rx="8" fill="var(--panel)" stroke="var(--line)" stroke-width="2"></rect>
+          <text x="274" y="356" text-anchor="middle" class="node-title">7. Response path</text>
+          <text x="274" y="388" text-anchor="middle" class="node-text">actions return through</text>
+          <text x="274" y="412" text-anchor="middle" class="node-text">policy server -> tunnel</text>
+          <text x="274" y="436" text-anchor="middle" class="node-text">-> proxy -> WSS client</text>
+          <text x="274" y="460" text-anchor="middle" class="node-text">organizer receives actions</text>
 
-          <path d="M824 394 C700 394,682 248,608 242" fill="none" stroke="#4f5b54" stroke-width="2.5" marker-end="url(#arrow)"></path>
-          <text x="710" y="338" text-anchor="middle" class="edge-label">outbound reverse SSH tunnel</text>
+          <line x1="244" y1="141" x2="310" y2="141" stroke="#4f5b54" stroke-width="2.5" marker-end="url(#arrow)"></line>
+          <text x="277" y="122" text-anchor="middle" class="edge-label">observation</text>
 
-          <path d="M435 204 C350 265,348 332,455 382 C557 430,708 430,822 410" fill="none" stroke="#4f5b54" stroke-width="2" stroke-dasharray="8 7" marker-end="url(#arrow)"></path>
-          <text x="520" y="412" text-anchor="middle" class="edge-label">requests and responses travel back through the same path</text>
+          <line x1="572" y1="141" x2="638" y2="141" stroke="#4f5b54" stroke-width="2.5" marker-end="url(#arrow)"></line>
+          <text x="605" y="122" text-anchor="middle" class="edge-label">encrypted WSS</text>
+
+          <line x1="900" y1="141" x2="970" y2="141" stroke="#4f5b54" stroke-width="2.5" marker-end="url(#arrow)"></line>
+          <text x="935" y="122" text-anchor="middle" class="edge-label">localhost</text>
+
+          <path d="M1106 228 C1106 286,1016 300,972 314" fill="none" stroke="#4f5b54" stroke-width="2.5" marker-end="url(#arrow)"></path>
+          <text x="1100" y="282" text-anchor="middle" class="edge-label">tunnel carries bytes</text>
+
+          <line x1="812" y1="404" x2="742" y2="404" stroke="#4f5b54" stroke-width="2.5" marker-end="url(#arrow)"></line>
+          <text x="777" y="386" text-anchor="middle" class="edge-label">infer</text>
+
+          <line x1="480" y1="404" x2="410" y2="404" stroke="#4f5b54" stroke-width="2.5" marker-end="url(#arrow)"></line>
+          <text x="445" y="386" text-anchor="middle" class="edge-label">actions</text>
+
+          <path d="M198 318 C70 286,42 224,78 206" fill="none" stroke="#4f5b54" stroke-width="2" stroke-dasharray="8 7" marker-end="url(#arrow)"></path>
+          <text x="104" y="278" text-anchor="middle" class="edge-label">actions return</text>
+          <text x="104" y="298" text-anchor="middle" class="edge-label">to organizer</text>
+
+          <rect x="44" y="560" width="1188" height="96" rx="8" fill="#fffdf8" stroke="var(--line)" stroke-width="2"></rect>
+          <text x="68" y="594" class="node-title">Plain-language glossary</text>
+          <text x="68" y="624" class="node-text">Caddy/nginx: small web-server/proxy program on the public host. It receives public internet traffic and forwards it inward.</text>
+          <text x="68" y="648" class="node-text">TLS/WSS: encryption layer. WSS is the WebSocket version of HTTPS, so the organizer can connect securely over the public internet.</text>
         </svg>
       </div>
     </section>
@@ -445,6 +482,9 @@ ssh -R 127.0.0.1:18000:127.0.0.1:8000</code></pre>
         </div>
         <div class="callout" style="margin-top: 14px;">
           <strong>Important distinction:</strong> if the managed tunnel agent runs on your personal computer, Yonsei still needs some way to reach that computer unless the reverse SSH tunnel is replaced. If the managed tunnel agent runs directly inside the SLURM job, it can expose <code>127.0.0.1:8000</code> directly and skip the reverse SSH hop, but then the endpoint only exists while both the job and tunnel agent are running. Confirm cluster policy and organizer acceptance before relying on that path.
+        </div>
+        <div class="callout" style="margin-top: 14px;">
+          <strong>Evaluator compatibility:</strong> the organizers should not need to install anything for Cloudflare Tunnel, ngrok, or Tailscale Funnel. If the tunnel exposes a normal public <code>wss://</code> endpoint and transparently forwards WebSocket traffic to our policy server, their OpenPI-style WebSocket client should see the same protocol as a direct server. The tunnel must preserve WebSocket upgrades, binary frames, custom <code>Authorization</code> headers, large image observations, and long-lived connections. Avoid tunnel modes that add browser interstitial pages or require the evaluator to join a private network.
         </div>
       </div>
       <div class="card" style="margin-top: 14px;">
