@@ -1,0 +1,9 @@
+# Caddy config for the public VM. The reverse SSH tunnel from the SLURM job
+# should bind 127.0.0.1:18000 on this VM.
+#
+# Replace policy.example.com with your real DNS name. Open inbound 80/443 on
+# the VM firewall/security group. Keep port 18000 closed to the public internet.
+
+policy.example.com {
+    reverse_proxy 127.0.0.1:18000
+}

@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Yonsei Policy Deployment Plan</title>
+  <style>
+    :root {
+      --bg: #f7f8f4;
+      --ink: #17211b;
+      --muted: #59645d;
+      --line: #cfd7cf;
+      --panel: #ffffff;
+      --proxy: #e6f3ef;
+      --proxy-line: #2f7d68;
+      --yonsei: #eef0fb;
+      --yonsei-line: #5966b3;
+      --public: #fff2dc;
+      --public-line: #b56f20;
+      --risk: #fff0ee;
+      --risk-line: #b95042;
+      --code-bg: #111915;
+      --code-ink: #e8f0e8;
+      --accent: #226b5d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.55;
+    }
+
+    header {
+      background: #fbfcf8;
+      border-bottom: 1px solid var(--line);
+    }
+
+    main,
+    .header-inner {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .header-inner {
+      padding: 28px 0 22px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.15;
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: clamp(30px, 4vw, 52px);
+      max-width: 820px;
+    }
+
+    h2 {
+      font-size: 24px;
+      margin-bottom: 14px;
+    }
+
+    h3 {
+      font-size: 17px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: 18px;
+      max-width: 850px;
+    }
+
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 999px;
+      color: #2a362e;
+      padding: 5px 10px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    section {
+      padding: 28px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .diagram-wrap {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      overflow-x: auto;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      min-width: 780px;
+      height: auto;
+    }
+
+    .node-title {
+      font-weight: 700;
+      font-size: 18px;
+      fill: var(--ink);
+    }
+
+    .node-text {
+      font-size: 14px;
+      fill: #38443d;
+    }
+
+    .edge-label {
+      font-size: 13px;
+      fill: #3d4a42;
+      font-weight: 650;
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      min-width: 0;
+    }
+
+    .card.proxy {
+      border-color: #a8cec3;
+      background: var(--proxy);
+    }
+
+    .card.risk {
+      border-color: #efb2aa;
+      background: var(--risk);
+    }
+
+    .card.public {
+      border-color: #e3bd84;
+      background: var(--public);
+    }
+
+    .step-list,
+    .compact-list {
+      margin: 0;
+      padding-left: 22px;
+    }
+
+    .step-list li,
+    .compact-list li {
+      margin: 7px 0;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.94em;
+      background: #e9eee9;
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+
+    pre {
+      margin: 10px 0 0;
+      background: var(--code-bg);
+      color: var(--code-ink);
+      border-radius: 8px;
+      padding: 14px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th,
+    td {
+      text-align: left;
+      vertical-align: top;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    th {
+      background: #edf1ec;
+      font-size: 13px;
+      text-transform: uppercase;
+      color: #354039;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #edf5f1;
+      padding: 12px 14px;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .warning {
+      border-left-color: var(--risk-line);
+      background: var(--risk);
+    }
+
+    .file-list a {
+      color: #124f43;
+      text-decoration: none;
+      font-weight: 650;
+    }
+
+    .file-list a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 26px 0 36px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 820px) {
+      .grid.two,
+      .grid.three {
+        grid-template-columns: 1fr;
+      }
+
+      main,
+      .header-inner,
+      footer {
+        width: min(100% - 22px, 1120px);
+      }
+
+      section {
+        padding: 22px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1>Yonsei Policy Deployment Plan</h1>
+      <p class="lead">
+        Run the robot policy server inside a Yonsei SLURM GPU job, expose it
+        through a public proxy layer, and give organizers a stable WSS endpoint.
+      </p>
+      <div class="status-row" aria-label="Plan summary">
+        <span class="pill">SLURM GPU job</span>
+        <span class="pill">Reverse SSH tunnel</span>
+        <span class="pill">Caddy or nginx TLS</span>
+        <span class="pill">VM, personal computer, or tunnel service</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section aria-labelledby="architecture">
+      <h2 id="architecture">Architecture</h2>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 1120 520" role="img" aria-labelledby="diagram-title diagram-desc">
+          <title id="diagram-title">Policy deployment architecture</title>
+          <desc id="diagram-desc">Organizers connect to a public proxy layer, which forwards traffic through a reverse SSH tunnel or managed tunnel to the policy server running in a Yonsei SLURM GPU job.</desc>
+
+          <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#4f5b54"></path>
+            </marker>
+          </defs>
+
+          <rect x="32" y="76" width="252" height="142" rx="8" fill="var(--public)" stroke="var(--public-line)" stroke-width="2"></rect>
+          <text x="158" y="116" text-anchor="middle" class="node-title">Competition organizers</text>
+          <text x="158" y="148" text-anchor="middle" class="node-text">send observations</text>
+          <text x="158" y="172" text-anchor="middle" class="node-text">receive action chunks</text>
+
+          <rect x="434" y="52" width="280" height="190" rx="8" fill="var(--proxy)" stroke="var(--proxy-line)" stroke-width="2"></rect>
+          <text x="574" y="94" text-anchor="middle" class="node-title">Public proxy layer</text>
+          <text x="574" y="124" text-anchor="middle" class="node-text">VM, computer, or tunnel service</text>
+          <text x="574" y="156" text-anchor="middle" class="node-text">Caddy/nginx terminates TLS</text>
+          <text x="574" y="180" text-anchor="middle" class="node-text">public: wss://policy.yourdomain.com</text>
+          <text x="574" y="204" text-anchor="middle" class="node-text">private: 127.0.0.1:18000</text>
+
+          <rect x="842" y="76" width="246" height="142" rx="8" fill="var(--yonsei)" stroke="var(--yonsei-line)" stroke-width="2"></rect>
+          <text x="965" y="116" text-anchor="middle" class="node-title">Yonsei login node</text>
+          <text x="965" y="148" text-anchor="middle" class="node-text">submit job with sbatch</text>
+          <text x="965" y="172" text-anchor="middle" class="node-text">watch logs and queue</text>
+
+          <rect x="824" y="318" width="282" height="152" rx="8" fill="#f0f3ff" stroke="var(--yonsei-line)" stroke-width="2"></rect>
+          <text x="965" y="358" text-anchor="middle" class="node-title">Yonsei GPU compute node</text>
+          <text x="965" y="390" text-anchor="middle" class="node-text">SLURM job owns one GPU</text>
+          <text x="965" y="414" text-anchor="middle" class="node-text">policy server: 127.0.0.1:8000</text>
+          <text x="965" y="438" text-anchor="middle" class="node-text">ssh -R :18000 -> :8000</text>
+
+          <line x1="284" y1="147" x2="424" y2="147" stroke="#4f5b54" stroke-width="2.5" marker-end="url(#arrow)"></line>
+          <text x="354" y="130" text-anchor="middle" class="edge-label">WSS + API key</text>
+
+          <line x1="842" y1="147" x2="724" y2="147" stroke="#4f5b54" stroke-width="2.5" marker-end="url(#arrow)"></line>
+          <text x="783" y="130" text-anchor="middle" class="edge-label">job submission</text>
+
+          <path d="M965 218 C965 258,965 276,965 308" fill="none" stroke="#4f5b54" stroke-width="2.5" marker-end="url(#arrow)"></path>
+          <text x="1010" y="268" text-anchor="middle" class="edge-label">allocated GPU</text>
+
+          <path d="M824 394 C700 394,682 248,608 242" fill="none" stroke="#4f5b54" stroke-width="2.5" marker-end="url(#arrow)"></path>
+          <text x="710" y="338" text-anchor="middle" class="edge-label">outbound reverse SSH tunnel</text>
+
+          <path d="M435 204 C350 265,348 332,455 382 C557 430,708 430,822 410" fill="none" stroke="#4f5b54" stroke-width="2" stroke-dasharray="8 7" marker-end="url(#arrow)"></path>
+          <text x="520" y="412" text-anchor="middle" class="edge-label">requests and responses travel back through the same path</text>
+        </svg>
+      </div>
+    </section>
+
+    <section aria-labelledby="summary">
+      <h2 id="summary">What Runs Where</h2>
+      <div class="grid three">
+        <article class="card public">
+          <h3>Organizers</h3>
+          <p>They connect to the public WSS endpoint, send binary msgpack observations, and receive action chunks.</p>
+          <pre><code>URL: wss://policy.yourdomain.com
+Header: Authorization: Api-Key &lt;token&gt;</code></pre>
+        </article>
+        <article class="card proxy">
+          <h3>Public proxy layer</h3>
+          <p>This can be a cloud VM, an always-on personal computer, or a managed tunnel service. It terminates TLS and forwards to the policy server path.</p>
+          <pre><code>Caddy/nginx: 443 -> 127.0.0.1:18000</code></pre>
+        </article>
+        <article class="card">
+          <h3>Yonsei GPU job</h3>
+          <p>The SLURM job starts the policy server and opens the outbound SSH tunnel to the proxy host.</p>
+          <pre><code>policy server: 127.0.0.1:8000
+ssh -R 127.0.0.1:18000:127.0.0.1:8000</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="proxy-options">
+      <h2 id="proxy-options">Proxy Host Options</h2>
+      <div class="grid two">
+        <article class="card proxy">
+          <h3>Option A: Cloud VM</h3>
+          <p>Operationally cleaner. Usually has a public IP, stable uptime, and simple firewall rules.</p>
+          <ul class="compact-list">
+            <li>Create a Linux user, for example <code>deploy</code>.</li>
+            <li>Add Yonsei's public SSH key to <code>~deploy/.ssh/authorized_keys</code>.</li>
+            <li>Install Caddy or nginx.</li>
+            <li>Open public ports <code>80</code> and <code>443</code>.</li>
+            <li>Keep <code>18000</code> private to localhost.</li>
+          </ul>
+        </article>
+        <article class="card risk">
+          <h3>Option B: Personal Computer</h3>
+          <p>Viable for a quick PoC if your computer can act like a public server and stay online.</p>
+          <ul class="compact-list">
+            <li>Disable sleep and keep the machine plugged in.</li>
+            <li>Run an SSH server and Caddy/nginx.</li>
+            <li>Forward router port <code>2222</code> to computer port <code>22</code>.</li>
+            <li>Forward router ports <code>80</code> and <code>443</code> to the computer.</li>
+            <li>Use dynamic DNS if your public IP changes.</li>
+            <li>Confirm you are not behind CGNAT.</li>
+          </ul>
+        </article>
+      </div>
+      <div class="callout warning" style="margin-top: 14px;">
+        <strong>CGNAT warning:</strong> if you are on campus Wi-Fi, apartment Wi-Fi, hotel Wi-Fi, or an ISP connection using CGNAT, direct router port forwarding may not work. In that case, consider Cloudflare Tunnel, ngrok, or Tailscale Funnel, but confirm the organizers accept that endpoint style.
+      </div>
+      <div class="card" style="margin-top: 14px;">
+        <h3>Provider Examples</h3>
+        <div class="grid two">
+          <div>
+            <h3>Cloud VM providers</h3>
+            <p>Use these if you want a normal Ubuntu box with SSH, Caddy/nginx, and a stable public IP.</p>
+            <ul class="compact-list">
+              <li>DigitalOcean Droplet</li>
+              <li>AWS Lightsail or EC2</li>
+              <li>Google Cloud Compute Engine</li>
+              <li>Azure Virtual Machine</li>
+              <li>Hetzner Cloud</li>
+              <li>Vultr</li>
+              <li>Akamai Linode</li>
+              <li>Oracle Cloud Free Tier VM</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Managed tunnel services</h3>
+            <p>Use these if you want outbound-only forwarding and may not want to rent a VM.</p>
+            <ul class="compact-list">
+              <li><strong><a href="https://developers.cloudflare.com/tunnel/">Cloudflare Tunnel</a>:</strong> <code>cloudflared</code> creates outbound connections to Cloudflare and maps a public hostname to a local service.</li>
+              <li><strong><a href="https://ngrok.com/docs/guides/share-localhost/tunnels">ngrok</a>:</strong> the ngrok agent creates an outbound tunnel and gives you an HTTPS URL for a local port; stable domains may depend on account/plan.</li>
+              <li><strong><a href="https://tailscale.com/docs/features/tailscale-funnel">Tailscale Funnel</a>:</strong> exposes a local service on a Tailscale device to the broader internet over HTTPS.</li>
+              <li><strong>zrok or similar tools:</strong> useful for PoCs, but check reliability and organizer acceptance.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="callout" style="margin-top: 14px;">
+          <strong>Important distinction:</strong> if the managed tunnel agent runs on your personal computer, Yonsei still needs some way to reach that computer unless the reverse SSH tunnel is replaced. If the managed tunnel agent runs directly inside the SLURM job, it can expose <code>127.0.0.1:8000</code> directly and skip the reverse SSH hop, but then the endpoint only exists while both the job and tunnel agent are running. Confirm cluster policy and organizer acceptance before relying on that path.
+        </div>
+      </div>
+      <div class="card" style="margin-top: 14px;">
+        <h3>Cost Comparison</h3>
+        <p>For a short PoC, managed tunnels can be zero-cost or cheaper than a VM. For an overnight competition endpoint, a small VM is still inexpensive and often more predictable.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Approximate Cost</th>
+              <th>What You Get</th>
+              <th>Main Caveat</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="https://developers.cloudflare.com/tunnel/">Cloudflare Tunnel</a></td>
+              <td>Often <strong>$0/mo</strong> for this kind of public app tunnel; Cloudflare Tunnel is available on all plans, and Cloudflare has a free plan.</td>
+              <td>No public IP, no inbound ports, public hostname mapped to a local service through <code>cloudflared</code>.</td>
+              <td>Usually needs a domain managed by Cloudflare for a stable hostname. If the agent runs inside SLURM, the endpoint dies with the job.</td>
+            </tr>
+            <tr>
+              <td><a href="https://ngrok.com/pricing">ngrok</a></td>
+              <td><strong>$0/mo</strong> free tier with tight limits; <strong>$10/mo</strong> Hobbyist monthly; Pay-as-you-go usage pricing for production-style needs.</td>
+              <td>Very fast setup, HTTPS URL, outbound-only agent, good for demos and webhooks.</td>
+              <td>Free tier limits include request/data caps and an interstitial page. Paid ngrok can cost more than a tiny VM if traffic grows.</td>
+            </tr>
+            <tr>
+              <td><a href="https://tailscale.com/docs/features/tailscale-funnel">Tailscale Funnel</a></td>
+              <td><strong>$0/mo</strong> on Personal for non-commercial use; Standard is <strong>$8/user/mo</strong>, Premium is <strong>$18/user/mo</strong>.</td>
+              <td>Public HTTPS exposure for a local service on a Tailscale device.</td>
+              <td>Funnel is still documented as beta. Personal plan is explicitly non-commercial; check fit for the competition.</td>
+            </tr>
+            <tr>
+              <td><a href="https://www.digitalocean.com/products/droplets">DigitalOcean Droplet</a></td>
+              <td>Starts around <strong>$4-$6/mo</strong>; billed by short intervals with a monthly cap.</td>
+              <td>Normal VM with SSH, Caddy/nginx, public IP, firewall, predictable endpoint.</td>
+              <td>Costs more than a free tunnel, but the absolute cost is small and operationally simple.</td>
+            </tr>
+            <tr>
+              <td><a href="https://aws.amazon.com/lightsail/pricing/">AWS Lightsail</a></td>
+              <td>Linux/Unix bundles start at <strong>$5/mo</strong> with public IPv4, or <strong>$3.50/mo</strong> IPv6-only.</td>
+              <td>Simple AWS VPS with static IP and DNS features bundled.</td>
+              <td>AWS account setup and networking are more ceremony than the tunnel tools.</td>
+            </tr>
+            <tr>
+              <td><a href="https://docs.hetzner.com/general/infrastructure-and-availability/price-adjustment/">Hetzner Cloud</a></td>
+              <td>Entry cloud servers are roughly <strong>€3.99/mo</strong> or <strong>$4.99/mo</strong> after the April 2026 adjustment, excluding VAT.</td>
+              <td>Cheap VM with strong price/performance, especially in Europe.</td>
+              <td>Regional availability and account approval can be friction. Prices are changing in 2026, so verify before buying.</td>
+            </tr>
+            <tr>
+              <td><a href="https://www.linode.com/pricing/">Akamai Linode</a></td>
+              <td>Nanode 1 GB is <strong>$5/mo</strong>.</td>
+              <td>Normal VM with included transfer and straightforward networking.</td>
+              <td>Same VM maintenance burden as other VPS providers.</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="callout" style="margin-top: 14px;">
+          <strong>Practical read:</strong> Cloudflare Tunnel is likely the cheapest serious managed-tunnel candidate if the organizers accept it. Tailscale Funnel can be free for personal/non-commercial use, but its fit depends on rules and beta status. ngrok is easiest for a demo, but its free limits and paid pricing can become less attractive than a $4-$6/month VM. A tiny VM is not the cheapest in pure dollars, but it is predictable and still inexpensive.
+        </div>
+      </div>
+      <div class="callout" style="margin-top: 14px;">
+        <strong>Why not host directly on the SLURM cluster?</strong>
+        The GPU server runs on a compute node allocated by SLURM, not on a stable public host. Compute nodes usually do not have routable public inbound ports, and their hostname can change every time the job is scheduled. Login nodes should not run long-lived GPU inference services, and administrators may kill heavy or long-running login-node processes. Even if a compute node could bind a port, the service would disappear when the SLURM job ends, and you would still need public TLS, firewall rules, and a stable DNS name. The proxy host keeps the public endpoint stable while the Yonsei job only makes an outbound SSH connection.
+      </div>
+    </section>
+
+    <section aria-labelledby="env-values">
+      <h2 id="env-values">Values You Need To Supply</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Variable</th>
+            <th>Meaning</th>
+            <th>How To Get It</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>POLICY_SERVER_API_KEYS</code></td>
+            <td>Secret token organizers send in the WebSocket Authorization header.</td>
+            <td><code>openssl rand -hex 32</code></td>
+          </tr>
+          <tr>
+            <td><code>TUNNEL_SSH_TARGET</code></td>
+            <td>SSH destination for the proxy host.</td>
+            <td><code>deploy@vm.example.com</code> or <code>zach@home-proxy.example.com</code></td>
+          </tr>
+          <tr>
+            <td><code>TUNNEL_SSH_PORT</code></td>
+            <td>SSH port if your proxy host does not expose SSH on port 22.</td>
+            <td>Use <code>2222</code> if your router forwards public 2222 to local 22.</td>
+          </tr>
+          <tr>
+            <td><code>TUNNEL_SSH_KEY</code></td>
+            <td>Private SSH key on Yonsei used to log into the proxy host.</td>
+            <td><code>~/.ssh/policy_tunnel</code>, generated with <code>ssh-keygen</code>.</td>
+          </tr>
+          <tr>
+            <td><code>TUNNEL_REMOTE_PORT</code></td>
+            <td>Localhost port on the proxy host created by the reverse tunnel.</td>
+            <td>Keep default <code>18000</code>.</td>
+          </tr>
+          <tr>
+            <td><code>POLICY_SPEC</code></td>
+            <td>Python import path for the policy class.</td>
+            <td>Use <code>examples.echo_policy:EchoPolicy</code> for the first PoC.</td>
+          </tr>
+          <tr>
+            <td><code>POLICY_KWARGS</code></td>
+            <td>Constructor values for the real policy.</td>
+            <td>Leave unset for echo PoC. Later set checkpoint path and <code>device=cuda:0</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="setup">
+      <h2 id="setup">Setup Sequence</h2>
+      <div class="grid two">
+        <article class="card">
+          <h3>On Yonsei</h3>
+          <ol class="step-list">
+            <li>Create the Python environment.</li>
+            <li>Generate a tunnel SSH key.</li>
+            <li>Copy the public key to the proxy host.</li>
+            <li>Create an untracked <code>.env</code>.</li>
+            <li>Submit the SLURM job.</li>
+          </ol>
+          <pre><code>cd /home/tangzach/forwarding-test
+python -m venv .venv
+.venv/bin/pip install -r requirements.txt
+
+ssh-keygen -t ed25519 -f ~/.ssh/policy_tunnel -C policy-tunnel
+cat ~/.ssh/policy_tunnel.pub
+
+cp deploy/yonsei.env.example .env
+chmod 600 .env
+vi .env</code></pre>
+        </article>
+        <article class="card">
+          <h3>On Proxy Host</h3>
+          <ol class="step-list">
+            <li>Add the printed Yonsei public key to the SSH user's <code>authorized_keys</code>.</li>
+            <li>Install and configure Caddy or nginx.</li>
+            <li>Point DNS at the proxy host if you have a domain.</li>
+            <li>Open public <code>80</code> and <code>443</code>.</li>
+            <li>Keep <code>18000</code> private.</li>
+          </ol>
+          <pre><code>policy.yourdomain.com {
+    reverse_proxy 127.0.0.1:18000
+}</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="env-example">
+      <h2 id="env-example">Minimum .env For Echo PoC</h2>
+      <pre><code>export POLICY_SERVER_API_KEYS="replace-with-openssl-rand-token"
+export TUNNEL_SSH_TARGET="deploy@YOUR_PROXY_PUBLIC_IP_OR_DOMAIN"
+export TUNNEL_SSH_KEY="${HOME}/.ssh/policy_tunnel"
+
+export TUNNEL_REMOTE_BIND="127.0.0.1"
+export TUNNEL_REMOTE_PORT="18000"
+export POLICY_SPEC="examples.echo_policy:EchoPolicy"
+export PYTHON_BIN="/home/tangzach/forwarding-test/.venv/bin/python"</code></pre>
+      <div class="callout" style="margin-top: 14px;">
+        If using a home computer behind router forwarding, add <code>export TUNNEL_SSH_PORT="2222"</code> if public port 2222 forwards to the computer's SSH port 22.
+      </div>
+    </section>
+
+    <section aria-labelledby="run">
+      <h2 id="run">Submit And Test</h2>
+      <div class="grid two">
+        <article class="card">
+          <h3>Submit job</h3>
+          <pre><code>mkdir -p logs
+source .env
+sbatch deploy/yonsei_policy_server.sbatch
+
+squeue -u "$USER"
+tail -f logs/policy_server.&lt;JOBID&gt;.out</code></pre>
+        </article>
+        <article class="card">
+          <h3>Test endpoint</h3>
+          <pre><code># From the proxy host
+curl -i http://127.0.0.1:18000/healthz
+
+# From the public internet
+curl -i https://policy.yourdomain.com/healthz
+
+# WebSocket protocol test
+PYTHONPATH=. python scripts/ping.py \
+  --host wss://policy.yourdomain.com \
+  --api-key "$POLICY_SERVER_API_KEYS"</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="real-policy">
+      <h2 id="real-policy">Switch From Echo To Real Policy</h2>
+      <p>After the echo-policy networking PoC works, update <code>.env</code> to load the real policy.</p>
+      <pre><code>export POLICY_SPEC="examples.my_policy:MyPolicy"
+export POLICY_KWARGS="checkpoint_path=/lustre/${USER}/checkpoints/policy.pt device=cuda:0"</code></pre>
+      <div class="callout" style="margin-top: 14px;">
+        Keep <code>device=cuda:0</code>. SLURM sets <code>CUDA_VISIBLE_DEVICES</code>, so <code>cuda:0</code> maps to the GPU assigned to the job.
+      </div>
+    </section>
+
+    <section aria-labelledby="files">
+      <h2 id="files">Deployment Files</h2>
+      <div class="grid two file-list">
+        <article class="card">
+          <h3><a href="deploy/yonsei_policy_server.sbatch">deploy/yonsei_policy_server.sbatch</a></h3>
+          <p>Starts the policy server, checks health, and keeps the reverse SSH tunnel alive.</p>
+        </article>
+        <article class="card">
+          <h3><a href="deploy/yonsei.env.example">deploy/yonsei.env.example</a></h3>
+          <p>Template for the untracked <code>.env</code> file that contains endpoint and key settings.</p>
+        </article>
+        <article class="card">
+          <h3><a href="deploy/caddy.reverse-tunnel.Caddyfile.example">deploy/caddy.reverse-tunnel.Caddyfile.example</a></h3>
+          <p>Minimal Caddy proxy config for <code>wss://policy.yourdomain.com</code>.</p>
+        </article>
+        <article class="card">
+          <h3><a href="deploy/yonsei_reverse_tunnel.md">deploy/yonsei_reverse_tunnel.md</a></h3>
+          <p>Command-oriented runbook for setting up and testing the tunnel.</p>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="handoff">
+      <h2 id="handoff">What The Organizers Need</h2>
+      <pre><code>URL: wss://policy.yourdomain.com
+Authorization header: Api-Key &lt;your-api-key&gt;
+Protocol: WebSocket binary msgpack, as defined by this repository</code></pre>
+      <p class="lead" style="font-size: 16px; margin-top: 12px;">
+        The endpoint only works while the Yonsei SLURM job is running and the proxy host is online.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    Static plan file for <code>/home/tangzach/forwarding-test</code>. Open directly in a browser.
+  </footer>
+</body>
+</html>
